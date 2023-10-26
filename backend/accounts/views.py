@@ -8,7 +8,6 @@ from rest_framework.permissions import AllowAny
 from .models import Journal
 import os
 
-# from transformers import RobertaTokenizerFast, TFRobertaForSequenceClassification, pipeline
 import json
 import requests
 
