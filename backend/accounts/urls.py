@@ -1,12 +1,13 @@
 from django.urls import path
-from . import views
+from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
+from .views import Signup, EmoSenseView, InputView, OutputView, OutputAllView
 
 urlpatterns = [
-    path('signup/', views.signup, name='signup'),
-    path('login/', views.login, name='login'),
-    path('input/', views.input, name='input'),
-    path('output/', views.output, name='output'),
-    path('outputall/', views.outputall, name='outputall'),
-
-    path('emosense/', views.emosense, name='emosense'),
+    path('signup/', Signup.as_view(), name='signup'),
+    path('signin/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
+    path('refresh/', TokenRefreshView.as_view(), name='token_refresh'),
+    path('emosense/', EmoSenseView.as_view(), name='emosense'),
+    path('input/', InputView.as_view(), name='input'),
+    path('output/', OutputView.as_view(), name='output'),
+    path('outputall/', OutputAllView.as_view(), name='outputall'),
 ]
