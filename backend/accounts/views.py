@@ -14,6 +14,9 @@ from rest_framework_simplejwt.views import TokenObtainPairView
 from .serializers import UserSerializer
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.authentication import TokenAuthentication
+from django.contrib.auth import authenticate
+from rest_framework_simplejwt.authentication import JWTAuthentication
+from rest_framework_simplejwt.tokens import RefreshToken
 
 API_TOKEN = "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"
 
@@ -28,10 +31,36 @@ class Signup(APIView):
                 return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+class LoginView(APIView):
+    permission_classes = (AllowAny,)
+    def post(self, request):
+        email = request.data.get('email')
+        password = request.data.get('password')
+        user = authenticate(request, email=email, password=password)
+        
+        if user is not None:
+            user_serializer = UserSerializer(user)
+
+            # Generate JWT tokens
+            refresh = RefreshToken.for_user(user)
+            access_token = str(refresh.access_token)
+
+            response_data = {
+                'success': True,
+                'message': 'Login successful',
+                'user': user_serializer.data,
+                'access_token': access_token,
+                'refresh_token': str(refresh),
+            }
+            return Response(response_data)
+        else:
+            return Response({'success': False, 'message': 'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)
+
 class EmoSenseView(APIView):
     # authentication_classes = [TokenAuthentication]
-    # permission_classes = [IsAuthenticated]
-    permission_classes = [AllowAny]
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticated]
+    # permission_classes = [AllowAny]
 
     def get(self, request):
         # API_TOKEN = os.environ.get('HuggingFaceAPIKey')
@@ -41,7 +70,7 @@ class EmoSenseView(APIView):
         data = json.dumps({"inputs": "I love winters"})  # Wrap the input data in a dictionary
 
         response = requests.post(API_URL, headers=headers, data=data)
-
+        # print("user", request.user.id, request.user.full_name)
         if response.status_code == 200:
             result = response.json()
             # Modify this part based on the actual structure of the API response

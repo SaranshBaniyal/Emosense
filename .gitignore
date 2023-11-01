@@ -1,0 +1,15 @@
+# Ignore .env files
+backend/.env
+
+# Ignore database files
+backend/*.sqlite3
+
+# Ignore static and media files
+backend/staticfiles/
+backend/media/
+
+# Ignore IDE or text editor-specific files and directories
+.vscode/
+.idea/
+__pycache__/
+*.pyc
